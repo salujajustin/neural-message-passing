@@ -1,0 +1,205 @@
+<!doctype html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+		<title>reveal.js</title>
+
+		<link rel="stylesheet" href="dist/reset.css">
+		<link rel="stylesheet" href="dist/reveal.css">
+		<link rel="stylesheet" href="dist/theme/white.css" id="theme">
+
+		<!-- Theme used for syntax highlighted code -->
+		<link rel="stylesheet" href="plugin/highlight/monokai.css" id="highlight-theme">
+	</head>
+	<body>
+		<div class="reveal">
+			<div class="slides">
+				<section>
+                    <h2>Neural Message Passing</h2>
+                    
+                    <aside class="notes">
+                        Most GNN's use some variant of Neural Message Passing where vector messages are exchanges between nodes and are updated using neural networks
+                    </aside>
+                </section>
+                
+                
+				<section style="text-align: left;">
+                    <!-- The goal of these slides is to take some input graph  -->
+                    Graph 
+                    \[\begin{aligned}
+                    G = (V, E) \\  
+                    \end{aligned} \]
+                    
+                    <!-- along with a set of node features  -->
+                    Node Features 
+                    \[\begin{aligned}
+                    \boldsymbol{X} \in \mathbb{R}^{d \times |V| } \\
+                    \end{aligned} \]
+
+                    <!-- Use this information to generate -->
+                    Node Embeddings 
+                    \[\begin{aligned}
+                    \boldsymbol{z_u}, \forall u \in V \\
+                    \end{aligned} \]
+                    
+                </section>
+                
+				<section style="text-align: left;">
+
+                    Hidden embedding:                     
+                    \[\begin{aligned}
+                    \boldsymbol{h} = \{ \vec{h_{1}}, \vec{h_{2}}, \ldots ,\vec{h_{N}}\} \\
+                    \end{aligned} \]
+
+                    
+                    Node vs Edge embeddings:
+                    \[\begin{aligned}
+                    h_{u}^{(k)}, u & \in V \\
+                    h_{(u,v)}^{(k)}, (u,v) & \in E \\
+                    \end{aligned} \]
+                    
+                </section>
+                
+				<section style="text-align: left;">
+                    Goal: Combine the information from neighboring nodes to encode contextual graph information 
+                    <p class="fragment"> At every iteration, each node receives information from it's neighbors</p>
+                    <p class="fragment"> The information is then combined with the current features with a learnable function  </p>
+                    
+                </section>
+                
+				<section style="text-align: left;">
+                        <h4 style="text-align: center;">Message Passing Framework</h4>
+                        <img src="/images/node_aggregation.png">
+                        \[\begin{aligned}
+                        \small{ h_{u}^{(k+1)} = {\rm {\tiny UPDATE}}^{(k)} \left( h_{u}^{(k)}, {\rm {\tiny AGGREGATE}}^{(k)} \left( \{ h_{v}^{(k)}, \forall v \in \mathcal{N}(u)\} \right) \right) }\\
+                        \end{aligned} \]
+                        
+                        \[\begin{aligned}
+                        \small{ h_{u}^{(k+1)} = {\rm {\tiny UPDATE}}^{(k)} \left( h_{u}^{(k)}, m_{\mathcal{N}(u)}^{(k)} \right) }\\
+                        \end{aligned} \]
+    <!-- UPDATE and AGGREGATEare arbitrary differentiable functions (i.e., neural  networks)  and m_N(u) is  the  “message”  that  is  aggregated  from u’s  graph neighborhood N(u).   We  use  superscripts  to  distinguish  the  embeddings  and functions at different iterations of message passing. -->
+                    
+                    
+                </section>
+                
+                    <section style="text-align: left;">
+                        <h4>At each iteration $k$ of the GNN:</h4>
+                        <ul>
+                            <li>$\tiny{AGGREGATE}$ all embeddings from $u$'s neighbors to generate a message $m_{\mathcal{N}(u)}^{(k)}$ based on this aggregated neighborhood information </li>
+                            <li>$\tiny{UPDATE}$ the embedding $h_{u}^{(k)}$ of node $u$ by combining information from the previous embedding $h_{u}^{(k-1)}$ and with the message $m_{\mathcal{N}(u)}^{(k)}$</li>
+                        </ul>
+                    </section>
+                    
+                    <section style="text-align: left;">
+                        <h4>After running $K$ iterations:</h4>
+                        <ul>
+                            <li> Use the output of the final layer to define the embeddings for each node: </li>
+                            \[\begin{aligned}
+                            z_{u} = h_{u}^{(K)}, \forall u \in V \\
+                            \end{aligned} \]
+                        </ul>
+                    </section>
+                
+
+                
+                <section style="text-align: left;">
+                    <h4 style="text-align: center;">The Basic GNN</h4>
+                    \[\begin{aligned}
+                        \small{ 
+                            h_{u}^{(k)} = \sigma 
+                                \left( 
+                                    W_{\textrm{self}}^{(k)} h_{u}^{(k-1)} + 
+                                    W_{\textrm{neigh}}^{(k)} 
+                                    \sum_{v \in N_{u}} h_{v}^{(k-1)} + b^{(k)}
+                                \right) 
+                         }\\
+                    \end{aligned} \]
+
+                    <ul>
+                        <li> $h_{u}^{(k-1)} \in \mathbb{R}^{d^{(k-1)}}$: Node embeddings </li>
+                        <li> $W_{\textrm{self}}^{(k)}, W_{\textrm{neigh}}^{(k)} \in \mathbb{R}^{d^{(k)} \times d^{(k-1)}}$: Learnable parameters</li>  
+                        <li> $b^{(k)} \in \mathbb{R}^{d^{(k)}}$: Bias term </li>
+                        <li> $\sigma$: Elementwise non-linearity  (e.g.,  a  tanh  or  ReLU) </li>
+                    </ul>
+                </section>
+
+                
+                <section data-markdown>
+                    <textarea data-template>
+                        ## Remarks
+                        ---
+                        * The learnable parameters can be shared across GNN messege passing iterations or trained separately for each layer
+                        * We just described only the node-level GNN operations. There exists graph-level formalisms as well.
+                        * The message passing example is analogous to a standard Multi-Layer Perceptron (MLP) in that it relies on linear operations followed by an elementwise non-linearity 
+                    </textarea>
+                    
+                </section>
+                
+                <section data-markdown>
+                    <textarea data-template>
+                        ## Summary
+                        ---
+                        1. Sum the messages incoming from the neighbors
+                        2. Combine the neighborhood information with the node’s previous embedding using a linear combination
+                        3. Apply an elementwise non-linearity
+                    </textarea>
+                    
+                </section>
+                
+
+				<!-- <section> -->
+                    <!-- \[\begin{aligned} -->
+                    <!-- m_{v}^{(l+1)} = \sum_{u \in N_{v}} M^{(l)} (h_{u}^{(l)}, h_{v}^{(l)}, h_{(u,v)}^{(0)} ) -->
+                    <!-- \end{aligned} \] -->
+
+                    <!-- <aside class="notes"> -->
+                        <!-- at every message passing step l, for every node do above -->
+                        <!-- m is the message the sum is the aggregation over all neighbors, M is the learnable function e.g. an MLP with shared weights across the entire graph  -->
+                    <!-- </aside> -->
+
+
+                    <!-- \[\begin{aligned} -->
+                    <!-- h_{v}^{(l+1)} =  U^{(l)} (h_{v}^{(l)}, m_{v}^{(l+1)} ) -->
+                    <!-- \end{aligned} \] -->
+
+                    <!-- <aside class="notes"> -->
+                        <!-- h is embedding update -->
+                        <!-- U is a learnable function with shared weights across entire graph  -->
+                    <!-- </aside> -->
+
+                    <!-- <p class="fragment"> Most Graph Neural Network Models are just variations of this formulation!</p> -->
+                    
+                <!-- </section> -->
+
+                
+			</div>
+		</div>
+
+		<script src="dist/reveal.js"></script>
+		<script src="plugin/notes/notes.js"></script>
+		<script src="plugin/markdown/markdown.js"></script>
+		<script src="plugin/highlight/highlight.js"></script>
+        <script src="plugin/math/math.js"></script>
+		<script>
+			// More info about initialization & config:
+			// - https://revealjs.com/initialization/
+			// - https://revealjs.com/config/
+			Reveal.initialize({
+				hash: true,
+                controls: true,      // show bottom arrows 
+                slideNumber: true,
+
+                math: {
+                    mathjax: 'https://cdn.jsdelivr.net/gh/mathjax/mathjax@2.7.8/MathJax.js',
+                    config: 'TeX-AMS_HTML-full',
+                    // pass other options into `MathJax.Hub.Config()`
+                    TeX: { Macros: { RR: "{\\bf R}" }  }
+                },
+				// Learn about plugins: https://revealjs.com/plugins/
+				plugins: [ RevealMarkdown, RevealHighlight, RevealNotes, RevealMath ]
+			});
+		</script>
+	</body>
+</html>
