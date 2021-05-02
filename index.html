@@ -27,22 +27,28 @@
                 
 				<section style="text-align: left;">
                     <!-- The goal of these slides is to take some input graph  -->
-                    Graph 
-                    \[\begin{aligned}
-                    G = (V, E) \\  
-                    \end{aligned} \]
+                    <!-- <p class="fragment" fade-in-then-semi-out> -->
+                        Graph 
+                        \[\begin{aligned}
+                        G = (V, E) \\  
+                        \end{aligned} \]
+                    <!-- </p> -->
                     
                     <!-- along with a set of node features  -->
+                    <p class="fragment" fade-in-then-semi-out>
                     Node Features 
                     \[\begin{aligned}
                     \boldsymbol{X} \in \mathbb{R}^{d \times |V| } \\
                     \end{aligned} \]
+                    </p>
 
                     <!-- Use this information to generate -->
+                    <p class="fragment" fade-in-then-semi-out>
                     Node Embeddings 
                     \[\begin{aligned}
                     \boldsymbol{z_u}, \forall u \in V \\
                     \end{aligned} \]
+                    </p>
                     
                 </section>
                 
@@ -54,11 +60,13 @@
                     \end{aligned} \]
 
                     
-                    Node vs Edge embeddings:
-                    \[\begin{aligned}
-                    h_{u}^{(k)}, u & \in V \\
-                    h_{(u,v)}^{(k)}, (u,v) & \in E \\
-                    \end{aligned} \]
+                    <p class="fragment">
+                        Node vs Edge embeddings:
+                        \[\begin{aligned}
+                        h_{u}^{(k)}, u & \in V \\
+                        h_{(u,v)}^{(k)}, (u,v) & \in E \\
+                        \end{aligned} \]
+                    </p>
                     
                 </section>
                 
@@ -72,13 +80,18 @@
 				<section>
                         <h4 style="text-align: center;">Message Passing Framework</h4>
                         <img src="./images/node_aggregation.png">
-                        \[\begin{aligned}
-                        \small{ h_{u}^{(k+1)} = {\rm {\tiny UPDATE}}^{(k)} \left( h_{u}^{(k)}, {\rm {\tiny AGGREGATE}}^{(k)} \left( \{ h_{v}^{(k)}, \forall v \in \mathcal{N}(u)\} \right) \right) }\\
-                        \end{aligned} \]
+                    
+                        <p class="fragment">
+                            \[\begin{aligned}
+                            \small{ h_{u}^{(k+1)} = {\rm {\tiny UPDATE}}^{(k)} \left( h_{u}^{(k)}, {\rm {\tiny AGGREGATE}}^{(k)} \left( \{ h_{v}^{(k)}, \forall v \in \mathcal{N}(u)\} \right) \right) }\\
+                            \end{aligned} \]
+                        </p>
                         
-                        \[\begin{aligned}
-                        \small{ h_{u}^{(k+1)} = {\rm {\tiny UPDATE}}^{(k)} \left( h_{u}^{(k)}, m_{\mathcal{N}(u)}^{(k)} \right) }\\
-                        \end{aligned} \]
+                        <p class="fragment">
+                            \[\begin{aligned}
+                            \small{ h_{u}^{(k+1)} = {\rm {\tiny UPDATE}}^{(k)} \left( h_{u}^{(k)}, m_{\mathcal{N}(u)}^{(k)} \right) }\\
+                            \end{aligned} \]
+                        </p>
     <!-- UPDATE and AGGREGATEare arbitrary differentiable functions (i.e., neural  networks)  and m_N(u) is  the  “message”  that  is  aggregated  from u’s  graph neighborhood N(u).   We  use  superscripts  to  distinguish  the  embeddings  and functions at different iterations of message passing. -->
                     
                     
